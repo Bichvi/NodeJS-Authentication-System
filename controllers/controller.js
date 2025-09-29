@@ -54,6 +54,27 @@ export  class UserPostController {
     //sign up
     createUser = async (req, res) => {
         const { username, email, password,cpassword } = req.body;
+        
+        // reCAPTCHA verification
+        const recaptcha = req.body['g-recaptcha-response'];
+        if (recaptcha === undefined || recaptcha === '' || recaptcha === null) {
+            return res.status(400).render("signup",{message:"Please complete the reCAPTCHA"});
+        }
+        
+        const secretKey = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'; // Test secret key
+        const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptcha}`;
+        const recaptchaResponse = await fetch(url, {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
+            }
+        });
+        
+        const recaptchaData = await recaptchaResponse.json();
+        if (!recaptchaData.success) {
+            return res.status(400).render("signup",{message:"reCAPTCHA verification failed"});
+        }
+        
         if (password !== cpassword) {
             return res.status(400).render("signup",{message:"Passwords don't match"});
         }
@@ -81,14 +102,21 @@ export  class UserPostController {
         if (recaptcha === undefined || recaptcha === '' || recaptcha === null) {
             return res.status(404).render("signin",{message:"Please select captcha"});
         }
-        // const secretKey = process.env.RECAPTCHA_SECRET_KEY;
-        // const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptcha}`;
-        // const response = await fetch(url, {
-        //     method: 'POST',
-        //     headers: {
-        //         "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
-        //     }
-        // });
+        
+        // Fix reCAPTCHA với test secret key cho localhost
+        const secretKey = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'; // Test secret key
+        const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptcha}`;
+        const recaptchaResponse = await fetch(url, {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded; charset=utf-8"
+            }
+        });
+        
+        const recaptchaData = await recaptchaResponse.json();
+        if (!recaptchaData.success) {
+            return res.status(400).render("signin",{message:"reCAPTCHA verification failed"});
+        }
 
         try {
             const existingUser = await User.findOne({ email: email});

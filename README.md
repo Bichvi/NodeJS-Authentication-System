@@ -1,5 +1,8 @@
 # Node.js Authentication System
 
+**Sinh viên:** Vũ Bích Vi  
+**MSSV:** 22691011  
+
 This project contains a complete authentication system using Node.js, Express, and MongoDB. It includes features like sign up, sign in, sign out, password reset, and social authentication (Google). The project is structured to be scalable with separate components for models, controllers, and routes.
 
 ## Live Site
